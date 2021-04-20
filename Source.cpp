@@ -10,17 +10,38 @@ public:
 		sAppName = "Shitty Tetris";
 	}
 
+	int BoardWidth;
+	int BoardHeight;
+	int BorderX;
+	int BorderY;
+
+
 public:
 	bool OnUserCreate() override
 	{
+		BoardWidth = 10 * 30;
+		BoardHeight = 20 * 30;
+		BorderX = (ScreenWidth() - BoardWidth) / 2;
+		BorderY = (ScreenHeight() - BoardHeight) / 2;
+
+
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		for (int x = 0; x < ScreenWidth(); x++)
-			for (int y = 0; y < ScreenHeight(); y++)
-				Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
+
+
+
+		
+
+
+		//----------------- Graphics -----------------
+		FillRect({ 0, 0 }, { ScreenWidth(), ScreenHeight() }, olc::BLACK);
+		FillRect({ BorderX - 3, BorderY - 3 }, { BoardWidth + 6, BoardHeight + 6 }, olc::BLUE);
+		FillRect({ BorderX, BorderY }, { BoardWidth, BoardHeight }, olc::DARK_GREY);
+		
+		
 		return true;
 	}
 };
@@ -28,7 +49,7 @@ public:
 int main()
 {
 	Example demo;
-	if (demo.Construct(720, 480, 2, 2))
+	if (demo.Construct(480, 720, 1, 1))
 		demo.Start();
 	return 0;
 }
