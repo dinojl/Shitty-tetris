@@ -16,6 +16,8 @@ public:
 	int BorderY;
 
 
+
+
 public:
 	bool OnUserCreate() override
 	{
@@ -30,6 +32,7 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		//-------------- Gameplay Logic --------------
 
 
 
@@ -37,9 +40,13 @@ public:
 
 
 		//----------------- Graphics -----------------
+
+		// Draw the board
 		FillRect({ 0, 0 }, { ScreenWidth(), ScreenHeight() }, olc::BLACK);
 		FillRect({ BorderX - 3, BorderY - 3 }, { BoardWidth + 6, BoardHeight + 6 }, olc::BLUE);
 		FillRect({ BorderX, BorderY }, { BoardWidth, BoardHeight }, olc::DARK_GREY);
+
+		// Draw the pieces
 		
 		
 		return true;
