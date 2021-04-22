@@ -15,8 +15,7 @@ public:
 	int BorderX;
 	int BorderY;
 
-
-
+	bool board[10][20];
 
 public:
 	bool OnUserCreate() override
@@ -26,6 +25,9 @@ public:
 		BorderX = (ScreenWidth() - BoardWidth) / 2;
 		BorderY = (ScreenHeight() - BoardHeight) / 2;
 
+		memset(board, false, sizeof(bool)*10*20);
+
+		board[5][10] = true;
 
 		return true;
 	}
@@ -34,7 +36,7 @@ public:
 	{
 		//-------------- Gameplay Logic --------------
 
-
+		
 
 		
 
@@ -48,7 +50,14 @@ public:
 
 		// Draw the pieces
 		
-		
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 20; y++) {
+				if (board[x][y]) {
+					FillRect({ 10 * x + BorderX, 10 * y + BorderY }, { 10, 10 }, olc::GREEN);
+				}
+			}
+		}
+
 		return true;
 	}
 };
