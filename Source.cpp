@@ -91,19 +91,20 @@ public:
 		if (GameTimer >= 1 && !GameOver) {
 			GameTimer = 0.0f;
 
-			
-
 			// Lower active tetromino & do collision
+			bool solidify = false;
 			for (int i = 0; i < 4; i++) {
-				if (Active->blocks[i]->pos.y > 0 && !board[Active->blocks[i]->pos.x][Active->blocks[i]->pos.y - 1])
-					Active->blocks[i]->pos.y--;
-				// Solidify tetromino on bottom of board
-				else {
-					Active->Solidify(board);
-					Active = new tetromino;
-					i = 4;
-				}
+				if (Active->blocks[i]->pos.y == 0 || board[Active->blocks[i]->pos.x][Active->blocks[i]->pos.y - 1])
+					solidify = true;
 			}
+			if (solidify) {
+				Active->Solidify(board);
+				Active = new tetromino;
+			}
+			else
+				Active->Advance();
+
+
 			BoardTimer++;
 		}
 
