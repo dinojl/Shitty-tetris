@@ -154,43 +154,45 @@ public:
 		}
 
 		// User input
-		if (GetKey(olc::D).bPressed || GetKey(olc::RIGHT).bPressed) {
-			bool blocked = false;
-			for (int i = 0; i < 4; i++) {
-				if (Active->blocks[i]->pos.x == 19)
-					blocked = true;
-				else if (board[Active->blocks[i]->pos.x + 1][Active->blocks[i]->pos.y])
-					blocked = true;
+		if (!GameOver) {
+			if (GetKey(olc::D).bPressed || GetKey(olc::RIGHT).bPressed) {
+				bool blocked = false;
+				for (int i = 0; i < 4; i++) {
+					if (Active->blocks[i]->pos.x == 19)
+						blocked = true;
+					else if (board[Active->blocks[i]->pos.x + 1][Active->blocks[i]->pos.y])
+						blocked = true;
+				}
+				if (!blocked)
+					Active->Right();
 			}
-			if (!blocked)
-				Active->Right();
-		}
-		if (GetKey(olc::A).bPressed || GetKey(olc::LEFT).bPressed) {
-			bool blocked = false;
-			for (int i = 0; i < 4; i++) {
-				if (Active->blocks[i]->pos.x == 0)
-					blocked = true;
-				else if (board[Active->blocks[i]->pos.x - 1][Active->blocks[i]->pos.y])
-					blocked = true;
+			if (GetKey(olc::A).bPressed || GetKey(olc::LEFT).bPressed) {
+				bool blocked = false;
+				for (int i = 0; i < 4; i++) {
+					if (Active->blocks[i]->pos.x == 0)
+						blocked = true;
+					else if (board[Active->blocks[i]->pos.x - 1][Active->blocks[i]->pos.y])
+						blocked = true;
+				}
+				if (!blocked)
+					Active->Left();
 			}
-			if (!blocked)
-				Active->Left();
-		}
-		if (GetKey(olc::S).bPressed || GetKey(olc::DOWN).bPressed) {
-			bool solidify = false;
-			for (int i = 0; i < 4; i++) {
-				if (Active->blocks[i]->pos.y == 0 || board[Active->blocks[i]->pos.x][Active->blocks[i]->pos.y - 1])
-					solidify = true;
+			if (GetKey(olc::S).bPressed || GetKey(olc::DOWN).bPressed) {
+				bool solidify = false;
+				for (int i = 0; i < 4; i++) {
+					if (Active->blocks[i]->pos.y == 0 || board[Active->blocks[i]->pos.x][Active->blocks[i]->pos.y - 1])
+						solidify = true;
+				}
+				if (solidify) {
+					Active->Solidify(board);
+					Active = new tetromino;
+				}
+				else
+					Active->Advance();
 			}
-			if (solidify) {
-				Active->Solidify(board);
-				Active = new tetromino;
+			if (GetKey(olc::W).bPressed || GetKey(olc::UP).bPressed) {
+				Active->Rotate(board);
 			}
-			else
-				Active->Advance();
-		}
-		if (GetKey(olc::W).bPressed || GetKey(olc::UP).bPressed) {
-			Active->Rotate(board);
 		}
 
 		// Game Over debug
