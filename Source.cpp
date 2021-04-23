@@ -23,17 +23,46 @@ public:
 
 	bool board[10][20];
 
-	// Struct to hold info about the active tetromino
-	struct tetromino {
-		tetromino() {
-			rotation = 0;
-			shape = rand() % 7;
-			pos = { 5, 19 };
+	// Struct to hold info about blocks
+	struct block {
+		block(int x = 5, int y = 19) {
+			pos = { x, y };
 		}
 
-		int rotation;
-		int shape;
+		void solidify(bool board[10][20]) {
+			board[pos.x][pos.y] = true;
+		}
+
 		olc::vi2d pos;
+
+	};
+
+	struct tetromino {
+		tetromino() {
+			shape = 0;
+			switch (shape) {
+			case(0):
+				blocks[0] = new block(5, 19);
+				blocks[1] = new block(5, 18);
+				blocks[2] = new block(5, 17);
+				blocks[3] = new block(5, 16);
+				break;
+			}
+		}
+		int shape = rand() % 6;
+		block* blocks[4];
+
+		void Advance() {
+			for (int i = 0; i < 4; i++) {
+				blocks[i]->pos.y--;
+			}
+		}
+
+		void Solidify(bool board[10][20]) {
+			for (int i = 0; i < 4; i++) {
+				blocks[i]->solidify(board);
+			}
+		}
 
 	};
 
@@ -52,13 +81,6 @@ public:
 
 		Active = new tetromino;
 
-		// Graphics debug blocks
-		board[0][0] = true;
-		board[2][0] = true;
-		board[1][1] = true;
-		board[9][0] = true;
-		board[9][19] = true;
-
 		return true;
 	}
 
@@ -69,20 +91,31 @@ public:
 		if (GameTimer >= 1 && !GameOver) {
 			GameTimer = 0.0f;
 
-			// Lower active tetromino
-			if (Active->pos.y > 0)
-				Active->pos.y--;
-			else {
-				board[Active->pos.x][Active->pos.y] = true;
-				Active = new tetromino;
-			}
+			
 
+			// Lower active tetromino & do collision
+			for (int i = 0; i < 4; i++) {
+				if (Active->blocks[i]->pos.y > 0 && !board[Active->blocks[i]->pos.x][Active->blocks[i]->pos.y - 1])
+					Active->blocks[i]->pos.y--;
+				// Solidify tetromino on bottom of board
+				else {
+					Active->Solidify(board);
+					Active = new tetromino;
+					i = 4;
+				}
+			}
 			BoardTimer++;
 		}
 
+		// Game Over debug
 		if (GetKey(olc::SPACE).bPressed)
 			GameOver = true;
 
+		// Game over when blocks reach top
+		for (int x = 0; x < 10; x++) {
+			if (board[x][19])
+				GameOver = true;
+		}
 
 		//----------------- Graphics -----------------
 
@@ -101,7 +134,9 @@ public:
 			}
 		}
 		if (Active != nullptr) {
-			FillRect({ 30 * Active->pos.x + BorderX, 30 * -Active->pos.y + BorderY + BoardHeight - 30 }, { 30, 30 }, olc::RED);
+			for (int i = 0; i < 4; i++) {
+				FillRect({ 30 * Active->blocks[i]->pos.x + BorderX, 30 * -Active->blocks[i]->pos.y + BorderY + BoardHeight - 30 }, { 30, 30 }, olc::RED);
+			}
 		}
 
 		// Draw game timer
