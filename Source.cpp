@@ -30,8 +30,8 @@ public:
 			pos = { x, y };
 		}
 
-		void solidify(bool board[10][20]) {
-			board[pos.x][pos.y] = true;
+		void solidify(bool board[10][20], olc::vi2d offset) {
+			board[pos.x + offset.x][pos.y + offset.y] = true;
 		}
 
 		olc::vi2d pos;
@@ -42,71 +42,80 @@ public:
 		tetromino() {
 			switch (shape) {
 			case(1):
-				blocks[0]->pos = {5, 19};
-				blocks[1]->pos = {5, 18};
-				blocks[2]->pos = {5, 17};
-				blocks[3]->pos = {4, 17};
+				blocks[0]->pos = { 0, 2 };
+				blocks[1]->pos = { 0, 1 };
+				blocks[2]->pos = { 0, 0 };
+				blocks[3]->pos = { -1, 0 };
 				break;
 			case(2):
-				blocks[0]->pos = { 4, 19 };
-				blocks[1]->pos = { 4, 18 };
-				blocks[2]->pos = { 4, 17 };
-				blocks[3]->pos = { 5, 17 };
+				blocks[0]->pos = { -1, 2 };
+				blocks[1]->pos = { -1, 1 };
+				blocks[2]->pos = { -1, 0 };
+				blocks[3]->pos = { 0, 0 };
 				break;
 			case(3):
-				blocks[0]->pos = { 5, 19 };
-				blocks[1]->pos = { 5, 18 };
-				blocks[2]->pos = { 4, 19 };
-				blocks[3]->pos = { 4, 18 };
+				blocks[0]->pos = { 0, 1 };
+				blocks[1]->pos = { 0, 0 };
+				blocks[2]->pos = { -1, 1 };
+				blocks[3]->pos = { -1, 0 };
 				break;
 			case(4):
-				blocks[0]->pos = { 4, 19 };
-				blocks[1]->pos = { 5, 19 };
-				blocks[2]->pos = { 5, 18 };
-				blocks[3]->pos = { 6, 18 };
+				blocks[0]->pos = { -1, 1 };
+				blocks[1]->pos = { 0, 1 };
+				blocks[2]->pos = { 0, 0 };
+				blocks[3]->pos = { 1, 0 };
 				break;
 			case(5):
-				blocks[0]->pos = { 6, 19 };
-				blocks[1]->pos = { 5, 19 };
-				blocks[2]->pos = { 5, 18 };
-				blocks[3]->pos = { 4, 18 };
+				blocks[0]->pos = { 1, 1 };
+				blocks[1]->pos = { 0, 1 };
+				blocks[2]->pos = { 0, 0 };
+				blocks[3]->pos = { -1, 0 };
 				break;
 			case(6):
-				blocks[0]->pos = { 4, 18 };
-				blocks[1]->pos = { 5, 19 };
-				blocks[2]->pos = { 5, 18 };
-				blocks[3]->pos = { 6, 18 };
+				blocks[0]->pos = { -1, 0 };
+				blocks[1]->pos = { 0, 1 };
+				blocks[2]->pos = { 0, 0 };
+				blocks[3]->pos = { 1, 0 };
 			}
 		}
 		int shape = rand() % 7;
-		block* blocks[4] = { new block(5, 19), new block(5, 18), new block(5, 17), new block(5, 16) };
+		block* blocks[4] = { new block(0, 2), new block(0, 1), new block(0, 0), new block(0, -1) };
+		int rotation = 0;
+		olc::vi2d pos = { 5, 17 };
+
+		int GetPosX(int block) {
+			return blocks[block]->pos.x + pos.x;
+		}
+
+		int GetPosY(int block) {
+			return blocks[block]->pos.y + pos.y;
+		}
 
 		void Advance() {
-			for (int i = 0; i < 4; i++) {
-				blocks[i]->pos.y--;
-			}
+			pos.y--;
 		}
 
 		void Right() {
-			for (int i = 0; i < 4; i++) {
-				blocks[i]->pos.x++;
-			}
+			pos.x++;
 		}
 
 		void Left() {
-			for (int i = 0; i < 4; i++) {
-				blocks[i]->pos.x--;
-			}
+			pos.x--;
 		}
 
 		void Solidify(bool board[10][20]) {
 			for (int i = 0; i < 4; i++) {
-				blocks[i]->solidify(board);
+				blocks[i]->solidify(board, pos);
 			}
 		}
 
 		void Rotate(bool board[10][20]) {
-			
+			for (int i = 0; i < 4; i++) {
+				int x = blocks[i]->pos.x;
+				int y = blocks[i]->pos.y;
+
+				blocks[i]->pos = {-y, x};
+			}
 		}
 
 	};
@@ -139,7 +148,7 @@ public:
 			// Lower active tetromino & do collision
 			bool solidify = false;
 			for (int i = 0; i < 4; i++) {
-				if (Active->blocks[i]->pos.y == 0 || board[Active->blocks[i]->pos.x][Active->blocks[i]->pos.y - 1])
+				if (Active->GetPosY(i) == 0 || board[Active->GetPosX(i)][Active->GetPosY(i) - 1])
 					solidify = true;
 			}
 			if (solidify) {
@@ -158,9 +167,9 @@ public:
 			if (GetKey(olc::D).bPressed || GetKey(olc::RIGHT).bPressed) {
 				bool blocked = false;
 				for (int i = 0; i < 4; i++) {
-					if (Active->blocks[i]->pos.x == 19)
+					if (Active->GetPosX(i) == 19)
 						blocked = true;
-					else if (board[Active->blocks[i]->pos.x + 1][Active->blocks[i]->pos.y])
+					else if (board[Active->GetPosX(i) + 1][Active->GetPosY(i)])
 						blocked = true;
 				}
 				if (!blocked)
@@ -169,9 +178,9 @@ public:
 			if (GetKey(olc::A).bPressed || GetKey(olc::LEFT).bPressed) {
 				bool blocked = false;
 				for (int i = 0; i < 4; i++) {
-					if (Active->blocks[i]->pos.x == 0)
+					if (Active->GetPosX(i) == 0)
 						blocked = true;
-					else if (board[Active->blocks[i]->pos.x - 1][Active->blocks[i]->pos.y])
+					else if (board[Active->GetPosX(i) - 1][Active->GetPosY(i)])
 						blocked = true;
 				}
 				if (!blocked)
@@ -180,7 +189,7 @@ public:
 			if (GetKey(olc::S).bPressed || GetKey(olc::DOWN).bPressed) {
 				bool solidify = false;
 				for (int i = 0; i < 4; i++) {
-					if (Active->blocks[i]->pos.y == 0 || board[Active->blocks[i]->pos.x][Active->blocks[i]->pos.y - 1])
+					if (Active->GetPosY(i) == 0 || board[Active->GetPosX(i)][Active->GetPosY(i) - 1])
 						solidify = true;
 				}
 				if (solidify) {
@@ -247,7 +256,7 @@ public:
 		}
 		if (Active != nullptr) {
 			for (int i = 0; i < 4; i++) {
-				FillRect({ 30 * Active->blocks[i]->pos.x + BorderX, 30 * -Active->blocks[i]->pos.y + BorderY + BoardHeight - 30 }, { 30, 30 }, olc::RED);
+				FillRect({ 30 * Active->GetPosX(i) + BorderX, 30 * -Active->GetPosY(i) + BorderY + BoardHeight - 30 }, { 30, 30 }, olc::RED);
 			}
 		}
 
