@@ -80,7 +80,6 @@ public:
 		}
 		int shape = rand() % 7;
 		block* blocks[4] = { new block(0, 2), new block(0, 1), new block(0, 0), new block(0, -1) };
-		int rotation = 0;
 		olc::vi2d pos = { 5, 17 };
 
 		int GetPosX(int block) {
@@ -110,11 +109,29 @@ public:
 		}
 
 		void Rotate(bool board[10][20]) {
+			bool blocked = false;
 			for (int i = 0; i < 4; i++) {
 				int x = blocks[i]->pos.x;
 				int y = blocks[i]->pos.y;
 
 				blocks[i]->pos = {-y, x};
+			}
+
+			for (int i = 0; i < 4; i++) {
+				blocked = board[GetPosX(i)][GetPosY(i)];
+				if (GetPosX(i) < 0 || GetPosX(i) > 9)
+					blocked = true;
+				if (GetPosY(i) < 0 || GetPosY(i) > 19)
+					blocked = true;
+			}
+
+			if (blocked) {
+				for (int i = 0; i < 4; i++) {
+					int x = blocks[i]->pos.x;
+					int y = blocks[i]->pos.y;
+
+					blocks[i]->pos = { y, -x };
+				}
 			}
 		}
 
