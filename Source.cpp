@@ -1,4 +1,5 @@
 #define OLC_PGE_APPLICATION
+#define OLC_PGEX_SOUND
 #include "olcPixelGameEngine.h"
 #include "olcPGEX_Sound.h"
 
@@ -18,12 +19,16 @@ public:
 
 	float GameTimer = 0.0f;
 	int BoardTimer = 0;
+	int SFXTimer = 0;
 
 	bool GameOver = false;
 	float EndScreenTimer = 0.0f;
 
 	bool board[10][20];
 	int Score = 0;
+
+	// sound stuff
+	int sndSampleA;
 
 	// Struct to hold info about blocks
 	struct block {
@@ -153,6 +158,9 @@ public:
 
 		Active = new tetromino;
 
+		olc::SOUND::InitialiseAudio();
+		sndSampleA = olc::SOUND::LoadAudioSample("Assets/Powerup3.wav");
+
 		return true;
 	}
 
@@ -162,6 +170,8 @@ public:
 
 		if (GameTimer >= 1 && !GameOver) {
 			GameTimer = 0.0f;
+
+			SFXTimer++;
 
 			// Lower active tetromino & do collision
 			bool solidify = false;
@@ -291,6 +301,13 @@ public:
 			EndScreenTimer += fElapsedTime;
 			if(EndScreenTimer >= 3)
 				return false;
+		}
+
+		//------------------- SFX --------------------
+
+		if (SFXTimer > 2) {
+			olc::SOUND::PlaySample(sndSampleA);
+			SFXTimer = 0;
 		}
 
 		GameTimer += fElapsedTime;
