@@ -12,6 +12,8 @@ public:
 		sAppName = "Shitty Tetris";
 	}
 
+	bool IsFirstLoop = true;
+
 	int BoardWidth;
 	int BoardHeight;
 	int BorderX;
@@ -19,7 +21,6 @@ public:
 
 	float GameTimer = 0.0f;
 	int BoardTimer = 0;
-	int SFXTimer = 0;
 
 	bool GameOver = false;
 	float EndScreenTimer = 0.0f;
@@ -28,7 +29,10 @@ public:
 	int Score = 0;
 
 	// sound stuff
-	int sndSampleA;
+	int sndMusic;
+
+	int sndIndex = 0;
+	float sndTimer = 0;
 
 	// Struct to hold info about blocks
 	struct block {
@@ -159,7 +163,8 @@ public:
 		Active = new tetromino;
 
 		olc::SOUND::InitialiseAudio();
-		sndSampleA = olc::SOUND::LoadAudioSample("Assets/Powerup3.wav");
+
+		sndMusic = olc::SOUND::LoadAudioSample("Assets/Tetris-loop.wav");
 
 		return true;
 	}
@@ -170,8 +175,6 @@ public:
 
 		if (GameTimer >= 1 && !GameOver) {
 			GameTimer = 0.0f;
-
-			SFXTimer++;
 
 			// Lower active tetromino & do collision
 			bool solidify = false;
@@ -305,12 +308,15 @@ public:
 
 		//------------------- SFX --------------------
 
-		if (SFXTimer > 2) {
-			olc::SOUND::PlaySample(sndSampleA);
-			SFXTimer = 0;
+		if (sndTimer >= 77.165f || IsFirstLoop) {
+			olc::SOUND::PlaySample(sndMusic);
+			sndTimer = 0.0f;
 		}
 
 		GameTimer += fElapsedTime;
+		sndTimer += fElapsedTime;
+		
+		IsFirstLoop = false;
 		return true;
 	}
 };
