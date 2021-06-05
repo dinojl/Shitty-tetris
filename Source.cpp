@@ -236,8 +236,8 @@ public:
 		}
 
 		// Game Over debug
-		if (GetKey(olc::SPACE).bPressed)
-			GameOver = true;
+		//if (GetKey(olc::SPACE).bPressed)
+		//	GameOver = true;
 
 		// Clear filled rows
 		for (int y = 0; y < 20; y++) {
